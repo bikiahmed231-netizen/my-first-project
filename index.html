@@ -83,7 +83,79 @@ button:hover { opacity: 0.88; }
     <option value="roman">Roman Hindi</option>
     <option value="as">Assamese</option>
   </select>
+<h3>Choose Your Class / Level</h3>
 
+<label for="classLevel">Select your class:</label>
+<select id="classLevel" onchange="updateSubjects()">
+  <option value="">Choose your class</option>
+  <option>KG 1</option>
+  <option>KG 2</option>
+  <option>Class 1</option>
+  <option>Class 2</option>
+  <option>Class 3</option>
+  <option>Class 4</option>
+  <option>Class 5</option>
+  <option>Class 6</option>
+  <option>Class 7</option>
+  <option>Class 8</option>
+  <option>Class 9</option>
+  <option>Class 10</option>
+  <option>Class 11 - Science</option>
+  <option>Class 11 - Commerce</option>
+  <option>Class 11 - Arts</option>
+  <option>Class 12 - Science</option>
+  <option>Class 12 - Commerce</option>
+  <option>Class 12 - Arts</option>
+  <option>Graduation - BA</option>
+  <option>Graduation - BSc</option>
+  <option>Graduation - BCom</option>
+  <option>Graduation - Computer Science</option>
+  <option>Other / My course</option>
+</select>
+
+<h3>Choose Your Subjects</h3>
+<div id="subjectOptions">
+  Select your class first.
+</div>
+
+<script>
+function updateSubjects() {
+  const level = document.getElementById("classLevel").value;
+  const box = document.getElementById("subjectOptions");
+
+  let subjects = [
+    "English", "Hindi", "Assamese", "Mathematics",
+    "Science", "Social Science", "History", "Geography",
+    "Civics", "Economics", "Computer Studies",
+    "Environmental Studies", "Art", "Physical Education",
+    "Physics", "Chemistry", "Biology", "Accountancy",
+    "Business Studies", "Political Science", "Sociology",
+    "Psychology", "Philosophy", "Education", "Statistics",
+    "Programming", "Other"
+  ];
+
+  if (level === "KG 1" || level === "KG 2") {
+    subjects = [
+      "English", "Hindi", "Assamese", "Numbers",
+      "Alphabet", "Drawing", "Rhymes", "Environmental Studies"
+    ];
+  } else if (
+    ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5"].includes(level)
+  ) {
+    subjects = [
+      "English", "Hindi", "Assamese", "Mathematics",
+      "Environmental Studies", "Computer Studies", "Art",
+      "General Knowledge", "Physical Education"
+    ];
+  }
+
+  box.innerHTML = subjects.map(subject =>
+    '<label style="display:block;margin:8px 0;">' +
+    '<input type="checkbox" value="' + subject + '"> ' +
+    subject + '</label>'
+  ).join("");
+}
+</script>
   <h3 id="addHeading">Add a Study Task</h3>
   <input id="subject" placeholder="Enter subject or homework">
   <input id="dueDate" type="date">
