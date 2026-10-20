@@ -1,258 +1,60 @@
  <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Study Planner</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <title>My First Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
 
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      min-height: 100vh;
-      color: #292747;
-    }
+        .card {
+            background: white;
+            color: #333;
+            padding: 35px 25px;
+            margin: 20px;
+            border-radius: 20px;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
 
-    .container {
-      max-width: 600px;
-      margin: 30px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 18px;
-      box-shadow: 0 8px 25px #30206040;
-    }
+        h1 {
+            color: #6545b5;
+        }
 
-    h1 {
-      text-align: center;
-      color: #6554c0;
-      margin-bottom: 8px;
-    }
+        p {
+            line-height: 1.7;
+        }
 
-    .subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 25px;
-    }
+        button {
+            background: #6545b5;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
 
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin: 7px 0;
-      border-radius: 9px;
-      font-size: 16px;
-    }
-
-    input {
-      border: 1px solid #ccc;
-    }
-
-    button {
-      border: none;
-      background: #6c5ce7;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #5141c5;
-    }
-
-    .progress-box {
-      background: #f0edff;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 18px 0;
-    }
-
-    progress {
-      width: 100%;
-      height: 18px;
-    }
-
-    ul {
-      padding: 0;
-      list-style: none;
-    }
-
-    li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #f7f6ff;
-      padding: 12px;
-      border-radius: 9px;
-      margin: 9px 0;
-      overflow-wrap: anywhere;
-    }
-
-    li input {
-      width: 20px;
-      flex-shrink: 0;
-      margin: 0;
-    }
-
-    li span {
-      flex: 1;
-    }
-
-    li.done span {
-      text-decoration: line-through;
-      color: #777;
-    }
-
-    li button {
-      width: auto;
-      margin: 0;
-      padding: 8px 10px;
-      background: #e74c3c;
-      font-size: 13px;
-    }
-
-    .section-title {
-      margin-top: 25px;
-    }
-
-    footer {
-      text-align: center;
-      color: #777;
-      font-size: 13px;
-      margin-top: 22px;
-    }
-  </style>
+        button:hover {
+            background: #49318b;
+        }
+    </style>
 </head>
 <body>
-
-  <main class="container">
-    <h1>📚 Student Study Planner</h1>
-    <p class="subtitle">Plan your study. Track your progress.</p>
-
-    <h3 class="section-title">Add a Study Task</h3>
-    <input id="taskInput" type="text"
-      placeholder="Enter subject or homework">
-
-    <input id="examDate" type="date">
-
-    <button id="addButton">+ Add Task</button>
-
-    <div class="progress-box">
-      <strong>My Study Progress</strong>
-      <p id="progressText">0 of 0 tasks completed</p>
-      <progress id="progressBar" value="0" max="100"></progress>
+    <div class="card">
+        <h1>Hello, Biki!</h1>
+        <p>Meri pehli website mein aapka swagat hai.</p>
+        <p>Main HTML aur CSS seekh raha hoon!</p>
+        <button onclick="alert('Wah Biki! Tumhara button kaam kar raha hai!')">Click Me</button>
     </div>
-
-    <h3 class="section-title">My Tasks</h3>
-    <ul id="taskList"></ul>
-
-    <footer>Your study journey starts here!</footer>
-  </main>
-
-  <script>
-    const taskInput = document.getElementById("taskInput");
-    const examDate = document.getElementById("examDate");
-    const taskList = document.getElementById("taskList");
-    const progressText = document.getElementById("progressText");
-    const progressBar = document.getElementById("progressBar");
-
-    let tasks = [];
-
-    try {
-      tasks = JSON.parse(
-        localStorage.getItem("studyPlannerTasks") || "[]"
-      );
-      if (!Array.isArray(tasks)) tasks = [];
-    } catch {
-      tasks = [];
-    }
-
-    function saveTasks() {
-      try {
-        localStorage.setItem(
-          "studyPlannerTasks",
-          JSON.stringify(tasks)
-        );
-      } catch {
-        alert("Data save nahi ho paya. Browser storage check karein.");
-      }
-    }
-
-    function renderTasks() {
-      taskList.replaceChildren();
-
-      tasks.forEach((task, index) => {
-        const item = document.createElement("li");
-        if (task.done) item.classList.add("done");
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = task.done;
-        checkbox.setAttribute("aria-label", "Task complete");
-
-        checkbox.addEventListener("change", () => {
-          tasks[index].done = checkbox.checked;
-          saveTasks();
-          renderTasks();
-        });
-
-        const details = document.createElement("span");
-        details.textContent = task.name +
-          (task.date ? " — Exam: " + task.date : "");
-
-        const removeButton = document.createElement("button");
-        removeButton.textContent = "Delete";
-        removeButton.addEventListener("click", () => {
-          tasks.splice(index, 1);
-          saveTasks();
-          renderTasks();
-        });
-
-        item.append(checkbox, details, removeButton);
-        taskList.appendChild(item);
-      });
-
-      const completed = tasks.filter(task => task.done).length;
-      const percent = tasks.length
-        ? Math.round(completed / tasks.length * 100)
-        : 0;
-
-      progressText.textContent =
-        completed + " of " + tasks.length + " tasks completed";
-      progressBar.value = percent;
-    }
-
-    document.getElementById("addButton").addEventListener("click", () => {
-      const name = taskInput.value.trim();
-
-      if (!name) {
-        alert("Please enter a subject or study task.");
-        taskInput.focus();
-        return;
-      }
-
-      tasks.push({
-        name: name,
-        date: examDate.value,
-        done: false
-      });
-
-      saveTasks();
-      taskInput.value = "";
-      examDate.value = "";
-      renderTasks();
-    });
-
-    taskInput.addEventListener("keydown", event => {
-      if (event.key === "Enter") {
-        document.getElementById("addButton").click();
-      }
-    });
-
-    renderTasks();
-  </script>
-
 </body>
 </html>
