@@ -1,11 +1,60 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
 <head>
     <title>My First Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .card {
+            background: white;
+            color: #333;
+            padding: 35px 25px;
+            margin: 20px;
+            border-radius: 20px;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #6545b5;
+        }
+
+        p {
+            line-height: 1.7;
+        }
+
+        button {
+            background: #6545b5;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #49318b;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>Meri pehli website mein aapka swagat hai.</p>
-    <button onclick="alert('Wah Biki! Tumhara button kaam kar raha hai!')">Click Me</button>
+    <div class="card">
+        <h1>Hello, Biki!</h1>
+        <p>Meri pehli website mein aapka swagat hai.</p>
+        <p>Main HTML aur CSS seekh raha hoon!</p>
+        <button onclick="alert('Wah Biki! Tumhara button kaam kar raha hai!')">Click Me</button>
+    </div>
 </body>
 </html>
