@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -83,6 +83,10 @@ footer{text-align:center;color:var(--muted);font-size:.85rem;padding:10px}
       <select id="scheduleMode"><option value="auto">Automatic schedule</option><option value="custom">Custom schedule</option></select>
     </div>
     <div>
+      <label for="timeFormat">Time display format</label>
+      <select id="timeFormat"><option value="24">24-hour (18:00)</option><option value="12">12-hour (6:00 PM)</option></select>
+    </div>
+    <div>
       <label id="startLabel" for="availableStart">Available from</label>
       <input id="availableStart" type="time" value="18:00">
     </div>
@@ -162,97 +166,10 @@ let tasks = [];
 let currentLang = "en";
 function t(key){return (translations[currentLang]||translations.en)[key]||translations.en[key]||key}
 function safeLoad(key,fallback){try{const value=localStorage.getItem(key);return value?JSON.parse(value):fallback}catch(e){return fallback}}
-function save(){try{localStorage.setItem("ssp_v2",JSON.stringify({selectedSubjects,schedule,tasks,level:$("level").value,lang:currentLang,mode:$("scheduleMode").value,start:$("availableStart").value,end:$("availableEnd").value,duration:$("duration").value,breakMinutes:$("breakMinutes").value}))}catch(e){}}
+function save(){try{localStorage.setItem("ssp_v2",JSON.stringify({selectedSubjects,schedule,tasks,level:$("level").value,lang:currentLang,mode:$("scheduleMode").value,timeFormat:$("timeFormat").value,start:$("availableStart").value,end:$("availableEnd").value,duration:$("duration").value,breakMinutes:$("breakMinutes").value}))}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function subjectGroup(level){if(level.startsWith("KG"))return subjectSets.early;if(/^Class [1-5]$/.test(level))return subjectSets.primary;if(/^Class [6-8]$/.test(level))return subjectSets.middle;if(/^Class (9|10)$/.test(level))return subjectSets.secondary;if(level.includes("Science"))return subjectSets.science;if(level.includes("Commerce")||level==="Graduation - BCom")return subjectSets.commerce;if(level.includes("Arts")||level==="Graduation - BA")return subjectSets.arts;if(level.startsWith("Graduation"))return subjectSets.graduation;return [...new Set(Object.values(subjectSets).flat())].sort()}
 function renderSubjects(){
  const level=$("level").value, box=$("subjectOptions");
  if(!level){box.innerHTML=`<div class="empty full">${esc(t("classFirst"))}</div>`;return}
- const choices=subjectGroup(level);
- selectedSubjects=selectedSubjects.filter(s=>choices.includes(s));
- box.innerHTML=choices.map(s=>`<label class="subject-choice"><input type="checkbox" value="${esc(s)}" ${selectedSubjects.includes(s)?"checked":""}> <span>${esc(s)}</span></label>`).join("");
- box.querySelectorAll('input[type="checkbox"]').forEach(el=>el.addEventListener("change",()=>{selectedSubjects=[...box.querySelectorAll("input:checked")].map(x=>x.value);save()}));
-}
-function toMinutes(time){if(!/^\d{2}:\d{2}$/.test(time))return NaN;const [h,m]=time.split(":").map(Number);return h*60+m}
-function fmt(min){min=((min%1440)+1440)%1440;return String(Math.floor(min/60)).padStart(2,"0")+":"+String(min%60).padStart(2,"0")}
-function renderSchedule(){
- const box=$("scheduleList");
- if(!schedule.length){box.innerHTML=`<div class="empty">${esc(t("emptySchedule"))}</div>`;return}
- box.innerHTML=schedule.slice().sort((a,b)=>a.start-b.start).map((s,i)=>`<div class="schedule-row"><div><strong>${esc(s.subject)}</strong><small>${esc(fmt(s.start))}–${esc(fmt(s.end))} · ${s.duration} min · ${esc(s.repeat||"daily")}</small></div><div class="row-actions"><span class="badge">${esc(s.kind==="auto"?t("auto"):"Custom")}</span><button class="danger" data-remove-session="${esc(s.id)}">${esc(t("remove"))}</button></div></div>`).join("");
- box.querySelectorAll("[data-remove-session]").forEach(b=>b.addEventListener("click",()=>{schedule=schedule.filter(s=>s.id!==b.dataset.removeSession);save();renderSchedule()}));
-}
-function makeAutomatic(){
- const start=toMinutes($("availableStart").value), end=toMinutes($("availableEnd").value), duration=Number($("duration").value), gap=Number($("breakMinutes").value);
- if(!selectedSubjects.length){$("scheduleStatus").textContent=t("needSubject");return}
- if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){$("scheduleStatus").textContent=t("needTime");return}
- const fit=Math.floor((end-start+gap)/(duration+gap));
- if(fit<1){$("scheduleStatus").textContent=t("noTime");return}
- const list=selectedSubjects.slice(0,fit), newSchedule=[];
- let cursor=start;
- list.forEach((subject,i)=>{newSchedule.push({id:"a"+Date.now()+"_"+i,subject,start:cursor,end:cursor+duration,duration,repeat:"daily",kind:"auto"});cursor+=duration+gap});
- schedule=schedule.filter(s=>s.kind!=="auto").concat(newSchedule);
- $("scheduleStatus").textContent=t("made");save();renderSchedule();
-}
-function addCustomSession(){
- const subject=$("sessionSubject").value.trim(), start=toMinutes($("sessionStart").value), duration=Number($("sessionDuration").value);
- if(!subject){$("scheduleStatus").textContent=t("needTask");return}
- if(!Number.isFinite(start)||!duration){$("scheduleStatus").textContent=t("needTime");return}
- const end=start+duration;
- if(schedule.some(s=>start<s.end&&end>s.start)){$("scheduleStatus").textContent=t("conflict");return}
- schedule.push({id:"c"+Date.now(),subject,start,end,duration,repeat:$("sessionDay").value,kind:"custom"});
- $("sessionSubject").value="";$("scheduleStatus").textContent=t("customAdded");save();renderSchedule();
-}
-function renderTasks(){
- const box=$("taskList");
- if(!tasks.length)box.innerHTML=`<div class="empty">${esc(t("emptyTasks"))}</div>`;
- else box.innerHTML=tasks.map(task=>`<div class="task-row"><label style="display:flex;gap:10px;align-items:flex-start;margin:0;font-weight:500"><input type="checkbox" data-task-check="${esc(task.id)}" ${task.completed?"checked":""}><span style="${task.completed?"text-decoration:line-through;color:#718096":""}">${esc(task.title)}${task.due?`<small>${esc(t("due"))}: ${esc(task.due)}</small>`:""}</span></label><div class="row-actions"><button class="danger" data-task-remove="${esc(task.id)}">${esc(t("remove"))}</button></div></div>`).join("");
- box.querySelectorAll("[data-task-check]").forEach(el=>el.addEventListener("change",()=>{const task=tasks.find(x=>x.id===el.dataset.taskCheck);if(task)task.completed=el.checked;save();renderTasks()}));
- box.querySelectorAll("[data-task-remove]").forEach(el=>el.addEventListener("click",()=>{tasks=tasks.filter(x=>x.id!==el.dataset.taskRemove);save();renderTasks()}));
- const done=tasks.filter(x=>x.completed).length;
- $("progressText").textContent=`${done} ${t("done")} / ${tasks.length}`;
- $("progressBar").style.width=(tasks.length?done/tasks.length*100:0)+"%";
-}
-function addTask(){
- const title=$("taskSubject").value.trim();
- if(!title){$("taskStatus").textContent=t("needTask");return}
- tasks.push({id:"t"+Date.now(),title,due:$("dueDate").value,completed:false});
- $("taskSubject").value="";$("dueDate").value="";$("taskStatus").textContent=t("taskAdded");save();renderTasks();
-}
-function applyLanguage(){
- currentLang=$("language").value;
- const m={appSubtitle:"subtitle",languageLabel:"language",levelLabel:"level",subjectsTitle:"subjects",subjectsHint:"subjectsHint",scheduleTitle:"schedule",modeLabel:"mode",startLabel:"start",endLabel:"end",durationLabel:"duration",breakLabel:"break",makeSchedule:"make",clearSchedule:"clear",scheduleHint:"scheduleHint",addSessionTitle:"addSessionTitle",sessionSubjectLabel:"sessionSubject",sessionDayLabel:"repeat",sessionStartLabel:"startTime",sessionDurationLabel:"sessionDuration",addSession:"addSession",taskTitle:"tasks",taskLabel:"task",dueLabel:"due",addTask:"addTask",progressTitle:"progress",saveHint:"save",footerText:"footer"};
- Object.entries(m).forEach(([id,key])=>{const el=$(id);if(el)el.textContent=t(key)});
- $("scheduleMode").innerHTML=`<option value="auto">${esc(t("auto"))}</option><option value="custom">${esc(t("custom"))}</option>`;
- $("sessionDay").innerHTML=`<option value="daily">${esc(t("daily"))}</option><option value="weekdays">${esc(t("weekdays"))}</option><option value="weekends">${esc(t("weekends"))}</option>`;
- $("appTitle").textContent="📚 Student Study Planner";
- $("level").options[0].textContent=t("chooseClass");
- updateMode();renderSubjects();renderSchedule();renderTasks();
-}
-function updateMode(){$("customSession").hidden=$("scheduleMode").value!=="custom";$("makeSchedule").hidden=$("scheduleMode").value==="custom";$("scheduleHint").textContent=t("scheduleHint")}
-function clearSchedule(){if(!confirm(t("deleteConfirm")))return;schedule=[];save();renderSchedule();$("scheduleStatus").textContent=t("cleared")}
-$("language").addEventListener("change",()=>{applyLanguage();save()});
-$("level").addEventListener("change",()=>{selectedSubjects=[];renderSubjects();save()});
-$("scheduleMode").addEventListener("change",()=>{updateMode();save()});
-$("makeSchedule").addEventListener("click",makeAutomatic);
-$("clearSchedule").addEventListener("click",clearSchedule);
-$("addSession").addEventListener("click",addCustomSession);
-$("addTask").addEventListener("click",addTask);
-$("taskSubject").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
-const saved=safeLoad("ssp_v2",null);
-if(saved){
- selectedSubjects=Array.isArray(saved.selectedSubjects)?saved.selectedSubjects:[];
- schedule=Array.isArray(saved.schedule)?saved.schedule:[];
- tasks=Array.isArray(saved.tasks)?saved.tasks:[];
- if(saved.level)$("level").value=saved.level;
- if(saved.lang&&translations[saved.lang])currentLang=saved.lang;
- $("language").value=currentLang;
- if(saved.mode)$("scheduleMode").value=saved.mode;
- if(saved.start)$("availableStart").value=saved.start;
- if(saved.end)$("availableEnd").value=saved.end;
- if(saved.duration)$("duration").value=saved.duration;
- if(saved.breakMinutes!==undefined)$("breakMinutes").value=saved.breakMinutes;
-}
-applyLanguage();
-</script>
-</body>
-</html>
+ const choices=subjectGroup(le
