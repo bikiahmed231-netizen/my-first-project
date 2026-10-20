@@ -1,385 +1,258 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#3157d5">
 <title>Student Study Planner</title>
-
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #4776e6, #8e54e9);
-  margin: 0;
-  padding: 20px;
-  color: #263238;
-}
-.container {
-  max-width: 650px;
-  margin: 25px auto;
-  background: white;
-  padding: 25px;
-  border-radius: 18px;
-  box-shadow: 0 8px 25px #2223;
-}
-h1, .subtitle { text-align: center; }
-h1 { color: #5548c8; }
-select, input, button {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 13px;
-  margin: 8px 0;
-  border-radius: 9px;
-  font-size: 16px;
-}
-input, select { border: 1px solid #ccc; }
-button {
-  border: none;
-  background: #5548df;
-  color: white;
-  cursor: pointer;
-}
-button:hover { opacity: 0.88; }
-.progress {
-  background: #eee;
-  border-radius: 10px;
-  overflow: hidden;
-  height: 10px;
-}
-#bar {
-  background: #35b779;
-  height: 100%;
-  width: 0%;
-}
-.task {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 0;
-  border-bottom: 1px solid #ddd;
-}
-.task input { width: auto; }
-.task span { flex: 1; overflow-wrap: anywhere; }
-.task button {
-  width: auto;
-  background: #e64b59;
-  padding: 8px;
-}
-.done { text-decoration: line-through; color: gray; }
-#status { color: #24814f; }
+:root{--blue:#3157d5;--blue2:#6a7ff0;--ink:#18233b;--muted:#64708a;--bg:#eef3ff;--card:#fff;--line:#dfe6f5;--green:#14845b;--red:#b93838}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:linear-gradient(135deg,#eaf4ff,#e9eaff);color:var(--ink);min-height:100vh}
+main{width:min(1100px,94%);margin:24px auto 48px}
+header{text-align:center;padding:24px 14px 16px}
+header h1{margin:0;color:var(--blue);font-size:clamp(1.8rem,4vw,2.7rem)}
+header p{margin:8px 0;color:var(--muted)}
+.panel{background:var(--card);border:1px solid #e4e9f7;border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 8px 28px #203a7410}
+h2{font-size:1.2rem;margin:0 0 14px}
+h3{font-size:1rem;margin:18px 0 10px}
+label{display:block;font-weight:600;font-size:.92rem;margin:0 0 6px}
+input,select,button{font:inherit}
+input:not([type=checkbox]),select{width:100%;padding:11px 12px;border:1px solid #cfd8ee;border-radius:10px;background:white;color:var(--ink);min-height:44px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.full{grid-column:1/-1}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.subject-choice{display:flex;align-items:center;gap:8px;border:1px solid var(--line);padding:9px 10px;border-radius:10px;font-weight:500;background:#fbfcff}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:10px;padding:11px 16px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer;min-height:42px}
+button.secondary{background:#edf1ff;color:#2444ad}
+button.danger{background:#fff0f0;color:var(--red);border:1px solid #f3d1d1}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #91a7ff;outline-offset:2px}
+.hint{font-size:.88rem;color:var(--muted);margin:7px 0 0}
+.status{min-height:1.4em;color:var(--green);font-weight:600;margin:10px 0 0}
+.schedule-row,.task-row{display:grid;grid-template-columns:minmax(120px,1fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;margin:8px 0;background:#fcfdff}
+.schedule-row small,.task-row small{display:block;color:var(--muted);margin-top:3px}
+.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.row-actions button{padding:7px 10px;min-height:34px;font-size:.88rem}
+.badge{display:inline-block;background:#e9efff;color:#2548b6;padding:4px 8px;border-radius:999px;font-size:.78rem;font-weight:700}
+.progress-track{height:12px;background:#e7ecfa;border-radius:99px;overflow:hidden;margin-top:8px}
+#progressBar{height:100%;width:0;background:linear-gradient(90deg,#3157d5,#36b58a);transition:width .2s}
+.empty{padding:14px;border:1px dashed #cbd5eb;border-radius:12px;color:var(--muted);text-align:center}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:10px}
+@media(max-width:650px){main{width:94%;margin-top:8px}.panel{padding:15px}.grid{grid-template-columns:1fr}.full{grid-column:auto}.schedule-row,.task-row{grid-template-columns:1fr}.row-actions button{flex:1}}
 </style>
 </head>
-
 <body>
-<div class="container">
-  <h1 id="heading">📚 Student Study Planner</h1>
-  <p class="subtitle" id="subtitle">
-    Plan your study. Track your progress.
-  </p>
+<main>
+<header>
+  <h1 id="appTitle">📚 Student Study Planner</h1>
+  <p id="appSubtitle">Plan your study. Track your progress.</p>
+</header>
 
-  <label id="languageLabel" for="language">Choose language</label>
-  <select id="language" onchange="changeLanguage()">
-    <option value="en">English</option>
-    <option value="hi">Hindi</option>
-    <option value="roman">Roman Hindi</option>
-    <option value="as">Assamese</option>
-  </select>
-<h3>Choose Your Class / Level</h3>
+<section class="panel">
+  <div class="grid">
+    <div>
+      <label id="languageLabel" for="language">Choose language</label>
+      <select id="language">
+        <option value="en">English</option><option value="hi">हिंदी</option><option value="roman">Roman Hindi</option><option value="as">অসমীয়া</option>
+      </select>
+    </div>
+    <div>
+      <label id="levelLabel" for="level">Choose your class / level</label>
+      <select id="level">
+        <option value="">Choose your class</option>
+        <option>KG 1</option><option>KG 2</option>
+        <option>Class 1</option><option>Class 2</option><option>Class 3</option><option>Class 4</option><option>Class 5</option><option>Class 6</option><option>Class 7</option><option>Class 8</option><option>Class 9</option><option>Class 10</option>
+        <option>Class 11 - Science</option><option>Class 11 - Commerce</option><option>Class 11 - Arts</option>
+        <option>Class 12 - Science</option><option>Class 12 - Commerce</option><option>Class 12 - Arts</option>
+        <option>Graduation - BA</option><option>Graduation - BSc</option><option>Graduation - BCom</option><option>Graduation - Computer Science</option><option>Other / My course</option>
+      </select>
+    </div>
+  </div>
+  <h3 id="subjectsTitle">Choose your subjects</h3>
+  <p class="hint" id="subjectsHint">Choose a class first, then select all subjects you study.</p>
+  <div id="subjectOptions" class="subject-grid"></div>
+</section>
 
-<label for="classLevel">Select your class:</label>
-<select id="classLevel" onchange="updateSubjects()">
-  <option value="">Choose your class</option>
-  <option>KG 1</option>
-  <option>KG 2</option>
-  <option>Class 1</option>
-  <option>Class 2</option>
-  <option>Class 3</option>
-  <option>Class 4</option>
-  <option>Class 5</option>
-  <option>Class 6</option>
-  <option>Class 7</option>
-  <option>Class 8</option>
-  <option>Class 9</option>
-  <option>Class 10</option>
-  <option>Class 11 - Science</option>
-  <option>Class 11 - Commerce</option>
-  <option>Class 11 - Arts</option>
-  <option>Class 12 - Science</option>
-  <option>Class 12 - Commerce</option>
-  <option>Class 12 - Arts</option>
-  <option>Graduation - BA</option>
-  <option>Graduation - BSc</option>
-  <option>Graduation - BCom</option>
-  <option>Graduation - Computer Science</option>
-  <option>Other / My course</option>
-</select>
+<section class="panel">
+  <h2 id="scheduleTitle">🕒 Build your daily study schedule</h2>
+  <div class="grid">
+    <div>
+      <label id="modeLabel" for="scheduleMode">Schedule mode</label>
+      <select id="scheduleMode"><option value="auto">Automatic schedule</option><option value="custom">Custom schedule</option></select>
+    </div>
+    <div>
+      <label id="startLabel" for="availableStart">Available from</label>
+      <input id="availableStart" type="time" value="18:00">
+    </div>
+    <div>
+      <label id="endLabel" for="availableEnd">Available until</label>
+      <input id="availableEnd" type="time" value="21:00">
+    </div>
+    <div>
+      <label id="durationLabel" for="duration">Minutes per subject</label>
+      <select id="duration"><option value="20">20 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select>
+    </div>
+    <div class="full">
+      <label id="breakLabel" for="breakMinutes">Break between subjects</label>
+      <select id="breakMinutes"><option value="0">No break</option><option value="5" selected>5 minutes</option><option value="10">10 minutes</option><option value="15">15 minutes</option></select>
+    </div>
+  </div>
+  <div class="actions">
+    <button id="makeSchedule">Create daily timetable</button>
+    <button id="clearSchedule" class="secondary">Clear timetable</button>
+  </div>
+  <p class="hint" id="scheduleHint">Automatic mode fits selected subjects into your available time. Custom mode lets you add specific sessions below.</p>
+  <p id="scheduleStatus" class="status" role="status" aria-live="polite"></p>
+  <div id="scheduleList"></div>
+  <div id="customSession" hidden>
+    <h3 id="addSessionTitle">Add a custom session</h3>
+    <div class="grid">
+      <div><label id="sessionSubjectLabel" for="sessionSubject">Subject / activity</label><input id="sessionSubject" placeholder="e.g. Mathematics homework"></div>
+      <div><label id="sessionDayLabel" for="sessionDay">Repeat</label><select id="sessionDay"><option value="daily">Every day</option><option value="weekdays">Monday–Friday</option><option value="weekends">Saturday–Sunday</option></select></div>
+      <div><label id="sessionStartLabel" for="sessionStart">Start time</label><input id="sessionStart" type="time" value="18:00"></div>
+      <div><label id="sessionDurationLabel" for="sessionDuration">Duration</label><select id="sessionDuration"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option></select></div>
+    </div>
+    <div class="actions"><button id="addSession">Add session</button></div>
+  </div>
+</section>
 
-<h3>Choose Your Subjects</h3>
-<div id="subjectOptions">
-  Select your class first.
-</div>
+<section class="panel">
+  <h2 id="taskTitle">✅ Daily tasks and homework</h2>
+  <div class="grid">
+    <div><label id="taskLabel" for="taskSubject">Task / homework</label><input id="taskSubject" placeholder="e.g. Finish Maths exercise 4"></div>
+    <div><label id="dueLabel" for="dueDate">Due date (optional)</label><input id="dueDate" type="date"></div>
+  </div>
+  <div class="actions"><button id="addTask">Add task</button></div>
+  <p id="taskStatus" class="status" role="status" aria-live="polite"></p>
+  <div id="taskList"></div>
+</section>
 
+<section class="panel">
+  <h2 id="progressTitle">📈 My study progress</h2>
+  <div id="progressText">0 of 0 tasks completed</div>
+  <div class="progress-track"><div id="progressBar"></div></div>
+  <p class="hint" id="saveHint">Your schedule and tasks are saved in this browser on this device.</p>
+</section>
+<footer id="footerText">Made to help students study — free to use.</footer>
+</main>
 <script>
-function updateSubjects() {
-  const level = document.getElementById("classLevel").value;
-  const box = document.getElementById("subjectOptions");
-
-  let subjects = [
-    "English", "Hindi", "Assamese", "Mathematics",
-    "Science", "Social Science", "History", "Geography",
-    "Civics", "Economics", "Computer Studies",
-    "Environmental Studies", "Art", "Physical Education",
-    "Physics", "Chemistry", "Biology", "Accountancy",
-    "Business Studies", "Political Science", "Sociology",
-    "Psychology", "Philosophy", "Education", "Statistics",
-    "Programming", "Other"
-  ];
-
-  if (level === "KG 1" || level === "KG 2") {
-    subjects = [
-      "English", "Hindi", "Assamese", "Numbers",
-      "Alphabet", "Drawing", "Rhymes", "Environmental Studies"
-    ];
-  } else if (
-    ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5"].includes(level)
-  ) {
-    subjects = [
-      "English", "Hindi", "Assamese", "Mathematics",
-      "Environmental Studies", "Computer Studies", "Art",
-      "General Knowledge", "Physical Education"
-    ];
-  }
-
-  box.innerHTML = subjects.map(subject =>
-    '<label style="display:block;margin:8px 0;">' +
-    '<input type="checkbox" value="' + subject + '"> ' +
-    subject + '</label>'
-  ).join("");
-}
-</script>
-  <h3 id="addHeading">Add a Study Task</h3>
-  <input id="subject" placeholder="Enter subject or homework">
-  <input id="dueDate" type="date">
-  <button id="addButton" onclick="addTask()">+ Add Task</button>
-  <p id="status" aria-live="polite"></p>
-
-  <h3 id="progressHeading">My Study Progress</h3>
-  <p id="progressText">0 of 0 tasks completed</p>
-  <div class="progress"><div id="bar"></div></div>
-
-  <h3 id="tasksHeading">My Tasks</h3>
-  <div id="tasks"></div>
-</div>
-
-<script>
-const words = {
-  en: {
-    heading: "📚 Student Study Planner",
-    subtitle: "Plan your study. Track your progress.",
-    language: "Choose language",
-    add: "Add a Study Task",
-    placeholder: "Enter subject or homework",
-    button: "+ Add Task",
-    progress: "My Study Progress",
-    tasks: "My Tasks",
-    empty: "Your study journey starts here!",
-    completed: "completed",
-    exam: "Due",
-    remove: "Delete",
-    success: "Task added successfully!",
-    missing: "Please enter a subject or homework.",
-    saved: "Task updated!",
-    confirm: "Are you sure you want to delete this task?"
-  },
-  hi: {
-    heading: "📚 Study Planner",
-    subtitle: "Apni padhai ki yojana banayein.",
-    language: "Bhasha chunein",
-    add: "Padhai ka task jodein",
-    placeholder: "Subject ya homework likhein",
-    button: "+ Task Jodein",
-    progress: "Meri padhai ki progress",
-    tasks: "Mere Tasks",
-    empty: "Yahan se aapki padhai shuru hoti hai!",
-    completed: "poore hue",
-    exam: "Aakhri tareekh",
-    remove: "Delete",
-    success: "Task jud gaya!",
-    missing: "Pehle subject ya homework likhein.",
-    saved: "Task update ho gaya!",
-    confirm: "Kya aap is task ko delete karna chahte hain?"
-  },
-  roman: {
-    heading: "📚 Student Study Planner",
-    subtitle: "Apni padhai plan karo aur progress dekho.",
-    language: "Apni language chuno",
-    add: "Padhai ka task jodo",
-    placeholder: "Subject ya homework likho",
-    button: "+ Task Jodo",
-    progress: "Meri Study Progress",
-    tasks: "Mere Tasks",
-    empty: "Chalo, aaj se padhai shuru karo!",
-    completed: "complete hue",
-    exam: "Last date",
-    remove: "Delete",
-    success: "Task add ho gaya!",
-    missing: "Pehle subject ya homework likho.",
-    saved: "Task update ho gaya!",
-    confirm: "Kya tum ye task delete karna chahte ho?"
-  },
-  as: {
-    heading: "📚 শিক্ষাৰ্থীৰ পঢ়াৰ পৰিকল্পনা",
-    subtitle: "পঢ়াৰ পৰিকল্পনা কৰক, অগ্ৰগতি চাওক।",
-    language: "ভাষা বাছনি কৰক",
-    add: "পঢ়াৰ কাম যোগ কৰক",
-    placeholder: "বিষয় বা ঘৰৰ কাম লিখক",
-    button: "+ কাম যোগ কৰক",
-    progress: "মোৰ পঢ়াৰ অগ্ৰগতি",
-    tasks: "মোৰ কামসমূহ",
-    empty: "ইয়াৰ পৰাই আপোনাৰ পঢ়া আৰম্ভ কৰক!",
-    completed: "টা সম্পূৰ্ণ",
-    exam: "শেষ তাৰিখ",
-    remove: "মচি পেলাওক",
-    success: "কাম যোগ কৰা হ'ল!",
-    missing: "প্ৰথমে বিষয় বা ঘৰৰ কাম লিখক।",
-    saved: "কাম আপডেট কৰা হ'ল!",
-    confirm: "এই কামটো মচি পেলাব বিচাৰে নেকি?"
-  }
+"use strict";
+const $ = id => document.getElementById(id);
+const subjectSets = {
+  early:["English","Hindi","Assamese","Numbers","Alphabet","Drawing","Rhymes","Environmental Studies"],
+  primary:["English","Hindi","Assamese","Mathematics","Environmental Studies","Computer Studies","Art","General Knowledge","Physical Education"],
+  middle:["English","Hindi","Assamese","Mathematics","Science","Social Science","History","Geography","Civics","Computer Studies","Art","Physical Education"],
+  secondary:["English","Hindi","Assamese","Mathematics","Science","Social Science","History","Geography","Civics","Economics","Computer Studies","Environmental Studies"],
+  science:["English","Physics","Chemistry","Biology","Mathematics","Computer Science","Environmental Studies"],
+  commerce:["English","Accountancy","Business Studies","Economics","Mathematics","Entrepreneurship"],
+  arts:["English","History","Political Science","Geography","Economics","Sociology","Psychology","Philosophy","Education"],
+  graduation:["English","Environmental Studies","Computer Science","Programming","Mathematics","Statistics","Physics","Chemistry","Biology","Accountancy","Business Studies","Economics","History","Political Science","Geography","Sociology","Psychology","Philosophy","Education","Other"]
 };
-
-let selectedLanguage = "en";
-let taskList = [];
-
-try {
-  taskList = JSON.parse(
-    localStorage.getItem("studyPlannerTasks") || "[]"
-  );
-  if (!Array.isArray(taskList)) taskList = [];
-} catch (error) {
-  taskList = [];
+const translations = {
+ en:{subtitle:"Plan your study. Track your progress.",language:"Choose language",level:"Choose your class / level",chooseClass:"Choose your class",subjects:"Choose your subjects",subjectsHint:"Choose a class first, then select all subjects you study.",schedule:"🕒 Build your daily study schedule",mode:"Schedule mode",auto:"Automatic schedule",custom:"Custom schedule",start:"Available from",end:"Available until",duration:"Minutes per subject",break:"Break between subjects",make:"Create daily timetable",clear:"Clear timetable",scheduleHint:"Automatic mode fits selected subjects into your available time. Custom mode lets you add specific sessions below.",addSessionTitle:"Add a custom session",sessionSubject:"Subject / activity",repeat:"Repeat",daily:"Every day",weekdays:"Monday–Friday",weekends:"Saturday–Sunday",startTime:"Start time",sessionDuration:"Duration",addSession:"Add session",tasks:"✅ Daily tasks and homework",task:"Task / homework",due:"Due date (optional)",addTask:"Add task",progress:"📈 My study progress",save:"Your schedule and tasks are saved in this browser on this device.",footer:"Made to help students study — free to use.",needSubject:"Please choose at least one subject first.",needTime:"Please choose a valid time range.",noTime:"There is not enough time for even one session. Increase your available time or reduce session length.",made:"Your daily timetable is ready!",customAdded:"Custom session added.",taskAdded:"Task added.",needTask:"Please enter a task or homework name.",emptySchedule:"No sessions yet. Create an automatic timetable or add a custom session.",emptyTasks:"No tasks yet. Add homework or a task above.",done:"completed",remove:"Remove",empty:"Nothing to show.",overlap:"This session overlaps with another session.",conflict:"Time conflict: this session overlaps with another session.",classFirst:"Choose your class first, then subjects will appear.",all:"All subjects",deleteConfirm:"Remove this item?",cleared:"Timetable cleared."},
+ hi:{subtitle:"Apni padhai plan karein aur progress dekhein.",language:"Bhasha chunein",level:"Apni class / level chunein",chooseClass:"Apni class chunein",subjects:"Apne subjects chunein",subjectsHint:"Pehle class chunein, phir apne subjects select karein.",schedule:"🕒 Apna daily study schedule banayein",mode:"Schedule ka tareeka",auto:"Automatic schedule",custom:"Custom schedule",start:"Padhai kab shuru kar sakte hain",end:"Padhai kab tak kar sakte hain",duration:"Har subject ke minutes",break:"Subjects ke beech break",make:"Daily timetable banayein",clear:"Timetable saaf karein",scheduleHint:"Automatic mode aapke available time mein subjects set karega. Custom mode mein aap apna session add kar sakte hain.",addSessionTitle:"Custom session add karein",sessionSubject:"Subject / kaam",repeat:"Kitni baar",daily:"Har din",weekdays:"Somvaar–Shukravaar",weekends:"Shanivaar–Ravivaar",startTime:"Shuru hone ka time",sessionDuration:"Duration",addSession:"Session add karein",tasks:"✅ Daily tasks aur homework",task:"Task / homework",due:"Aakhri tareekh (optional)",addTask:"Task add karein",progress:"📈 Meri study progress",save:"Aapka schedule aur tasks isi device ke browser mein save hote hain.",footer:"Students ki madad ke liye — bilkul free.",needSubject:"Pehle kam se kam ek subject chunein.",needTime:"Sahi start aur end time chunein.",noTime:"Itna time nahi hai. Available time badhayein ya session chhota karein.",made:"Aapka daily timetable taiyar hai!",customAdded:"Custom session add ho gaya.",taskAdded:"Task add ho gaya.",needTask:"Task ya homework ka naam likhein.",emptySchedule:"Abhi session nahi hain. Timetable banayein ya custom session add karein.",emptyTasks:"Abhi task nahi hain. Upar homework add karein.",done:"poore hue",remove:"Hataayein",empty:"Dikhane ke liye kuch nahi.",overlap:"Yeh session doosre session ke time se takra raha hai.",conflict:"Time conflict: yeh session doosre session ke saath overlap karta hai.",classFirst:"Pehle class chunein, phir subjects dikhenge.",all:"Saare subjects",deleteConfirm:"Is item ko hata dein?",cleared:"Timetable clear ho gaya."},
+ roman:{subtitle:"Apni padhai plan karo. Apni progress dekho.",language:"Language chuno",level:"Apni class / level chuno",chooseClass:"Apni class chuno",subjects:"Apne subjects chuno",subjectsHint:"Pehle class chuno, phir apne subjects select karo.",schedule:"🕒 Apna daily study schedule banao",mode:"Schedule ka tareeka",auto:"Automatic schedule",custom:"Custom schedule",start:"Padhai kab shuru kar sakte ho",end:"Padhai kab tak kar sakte ho",duration:"Har subject ke minutes",break:"Subjects ke beech break",make:"Daily timetable banao",clear:"Timetable clear karo",scheduleHint:"Automatic mode available time ke hisaab se subjects set karega. Custom mode mein apna session add kar sakte ho.",addSessionTitle:"Custom session add karo",sessionSubject:"Subject / kaam",repeat:"Repeat",daily:"Har din",weekdays:"Monday–Friday",weekends:"Saturday–Sunday",startTime:"Start time",sessionDuration:"Duration",addSession:"Session add karo",tasks:"✅ Daily tasks aur homework",task:"Task / homework",due:"Due date (optional)",addTask:"Task add karo",progress:"📈 Meri study progress",save:"Tumhara schedule aur tasks isi device ke browser mein save hote hain.",footer:"Students ki madad ke liye — bilkul free.",needSubject:"Pehle kam se kam ek subject chuno.",needTime:"Sahi start aur end time chuno.",noTime:"Itna time nahi hai. Available time badhao ya session chhota karo.",made:"Tumhara daily timetable taiyar hai!",customAdded:"Custom session add ho gaya.",taskAdded:"Task add ho gaya.",needTask:"Task ya homework ka naam likho.",emptySchedule:"Abhi sessions nahi hain. Timetable banao ya custom session add karo.",emptyTasks:"Abhi tasks nahi hain. Upar homework add karo.",done:"complete",remove:"Remove",empty:"Dikhane ke liye kuch nahi.",overlap:"Is session ka time doosre session se takra raha hai.",conflict:"Time conflict: yeh session doosre session ke saath overlap karta hai.",classFirst:"Pehle class chuno, phir subjects dikhenge.",all:"Saare subjects",deleteConfirm:"Is item ko hata dein?",cleared:"Timetable clear ho gaya."},
+ as:{subtitle:"আপোনাৰ পঢ়া-শুনাৰ পৰিকল্পনা কৰক আৰু অগ্ৰগতি চাওক।",language:"ভাষা বাছনি কৰক",level:"শ্ৰেণী / স্তৰ বাছনি কৰক",chooseClass:"শ্ৰেণী বাছনি কৰক",subjects:"বিষয়সমূহ বাছনি কৰক",subjectsHint:"প্ৰথমে শ্ৰেণী বাছনি কৰক, তাৰ পিছত বিষয় বাছনি কৰক।",schedule:"🕒 দৈনিক পঢ়াৰ সময়সূচী বনাওক",mode:"সময়সূচীৰ ধৰণ",auto:"স্বয়ংক্ৰিয় সময়সূচী",custom:"নিজে বনোৱা সময়সূচী",start:"পঢ়া আৰম্ভ কৰাৰ সময়",end:"পঢ়া শেষ কৰাৰ সময়",duration:"প্ৰতি বিষয়ৰ মিনিট",break:"বিষয়ৰ মাজৰ বিৰতি",make:"দৈনিক সময়সূচী বনাওক",clear:"সময়সূচী মচক",scheduleHint:"স্বয়ংক্ৰিয় পদ্ধতিয়ে উপলব্ধ সময়ত বিষয়সমূহ সাজিব। নিজৰ সময় যোগ কৰিবলৈ custom বাছনি কৰক।",addSessionTitle:"নিজৰ পঢ়াৰ সময় যোগ কৰক",sessionSubject:"বিষয় / কাম",repeat:"পুনৰাবৃত্তি",daily:"প্ৰতিদিনে",weekdays:"সোমবাৰৰ পৰা শুক্ৰবাৰ",weekends:"শনিবাৰ–দেওবাৰ",startTime:"আৰম্ভণিৰ সময়",sessionDuration:"সময়ৰ দৈৰ্ঘ্য",addSession:"সময় যোগ কৰক",tasks:"✅ দৈনিক কাম আৰু ঘৰুৱা কাম",task:"কাম / ঘৰুৱা কাম",due:"শেষ তাৰিখ (ঐচ্ছিক)",addTask:"কাম যোগ কৰক",progress:"📈 মোৰ পঢ়াৰ অগ্ৰগতি",save:"সময়সূচী আৰু কাম এই ডিভাইচৰ ব্ৰাউজাৰত সংৰক্ষিত হয়।",footer:"ছাত্ৰ-ছাত্ৰীৰ সহায়ৰ বাবে — সম্পূৰ্ণ বিনামূলীয়া।",needSubject:"আগতে অন্ততঃ এটা বিষয় বাছনি কৰক।",needTime:"শুদ্ধ আৰম্ভণি আৰু শেষৰ সময় বাছনি কৰক।",noTime:"এটা session ৰ বাবেও সময় কম। উপলব্ধ সময় বৃদ্ধি কৰক বা সময় কমাওক।",made:"আপোনাৰ দৈনিক সময়সূচী তৈয়াৰ হ'ল!",customAdded:"নিজৰ session যোগ কৰা হ'ল।",taskAdded:"কাম যোগ কৰা হ'ল।",needTask:"কাম বা ঘৰুৱা কামৰ নাম লিখক।",emptySchedule:"এতিয়াও কোনো session নাই। সময়সূচী বনাওক বা session যোগ কৰক।",emptyTasks:"এতিয়াও কোনো কাম নাই। ওপৰত কাম যোগ কৰক।",done:"সম্পূৰ্ণ",remove:"আঁতৰাওক",empty:"দেখুৱাবলৈ একো নাই।",overlap:"এই সময় আন এটা session ৰ সৈতে মিলি গৈছে।",conflict:"সময়ৰ সংঘাত: এই session আন এটাৰ সৈতে মিলিছে।",classFirst:"প্ৰথমে শ্ৰেণী বাছনি কৰক, তাৰ পিছত বিষয় দেখা যাব।",all:"সকলো বিষয়",deleteConfirm:"এইটো আঁতৰাব নেকি?",cleared:"সময়সূচী মচি দিয়া হ'ল।"}
+};
+let selectedSubjects = [];
+let schedule = [];
+let tasks = [];
+let currentLang = "en";
+function t(key){return (translations[currentLang]||translations.en)[key]||translations.en[key]||key}
+function safeLoad(key,fallback){try{const value=localStorage.getItem(key);return value?JSON.parse(value):fallback}catch(e){return fallback}}
+function save(){try{localStorage.setItem("ssp_v2",JSON.stringify({selectedSubjects,schedule,tasks,level:$("level").value,lang:currentLang,mode:$("scheduleMode").value,start:$("availableStart").value,end:$("availableEnd").value,duration:$("duration").value,breakMinutes:$("breakMinutes").value}))}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function subjectGroup(level){if(level.startsWith("KG"))return subjectSets.early;if(/^Class [1-5]$/.test(level))return subjectSets.primary;if(/^Class [6-8]$/.test(level))return subjectSets.middle;if(/^Class (9|10)$/.test(level))return subjectSets.secondary;if(level.includes("Science"))return subjectSets.science;if(level.includes("Commerce")||level==="Graduation - BCom")return subjectSets.commerce;if(level.includes("Arts")||level==="Graduation - BA")return subjectSets.arts;if(level.startsWith("Graduation"))return subjectSets.graduation;return [...new Set(Object.values(subjectSets).flat())].sort()}
+function renderSubjects(){
+ const level=$("level").value, box=$("subjectOptions");
+ if(!level){box.innerHTML=`<div class="empty full">${esc(t("classFirst"))}</div>`;return}
+ const choices=subjectGroup(level);
+ selectedSubjects=selectedSubjects.filter(s=>choices.includes(s));
+ box.innerHTML=choices.map(s=>`<label class="subject-choice"><input type="checkbox" value="${esc(s)}" ${selectedSubjects.includes(s)?"checked":""}> <span>${esc(s)}</span></label>`).join("");
+ box.querySelectorAll('input[type="checkbox"]').forEach(el=>el.addEventListener("change",()=>{selectedSubjects=[...box.querySelectorAll("input:checked")].map(x=>x.value);save()}));
 }
-
-function saveTasks() {
-  try {
-    localStorage.setItem(
-      "studyPlannerTasks",
-      JSON.stringify(taskList)
-    );
-  } catch (error) {
-    document.getElementById("status").textContent =
-      "Could not save tasks on this device.";
-  }
+function toMinutes(time){if(!/^\d{2}:\d{2}$/.test(time))return NaN;const [h,m]=time.split(":").map(Number);return h*60+m}
+function fmt(min){min=((min%1440)+1440)%1440;return String(Math.floor(min/60)).padStart(2,"0")+":"+String(min%60).padStart(2,"0")}
+function renderSchedule(){
+ const box=$("scheduleList");
+ if(!schedule.length){box.innerHTML=`<div class="empty">${esc(t("emptySchedule"))}</div>`;return}
+ box.innerHTML=schedule.slice().sort((a,b)=>a.start-b.start).map((s,i)=>`<div class="schedule-row"><div><strong>${esc(s.subject)}</strong><small>${esc(fmt(s.start))}–${esc(fmt(s.end))} · ${s.duration} min · ${esc(s.repeat||"daily")}</small></div><div class="row-actions"><span class="badge">${esc(s.kind==="auto"?t("auto"):"Custom")}</span><button class="danger" data-remove-session="${esc(s.id)}">${esc(t("remove"))}</button></div></div>`).join("");
+ box.querySelectorAll("[data-remove-session]").forEach(b=>b.addEventListener("click",()=>{schedule=schedule.filter(s=>s.id!==b.dataset.removeSession);save();renderSchedule()}));
 }
-
-function changeLanguage() {
-  selectedLanguage = document.getElementById("language").value;
-  const t = words[selectedLanguage];
-
-  document.documentElement.lang =
-    selectedLanguage === "as" ? "as" :
-    selectedLanguage === "hi" ? "hi" : "en";
-
-  document.getElementById("heading").textContent = t.heading;
-  document.getElementById("subtitle").textContent = t.subtitle;
-  document.getElementById("languageLabel").textContent = t.language;
-  document.getElementById("addHeading").textContent = t.add;
-  document.getElementById("subject").placeholder = t.placeholder;
-  document.getElementById("addButton").textContent = t.button;
-  document.getElementById("progressHeading").textContent = t.progress;
-  document.getElementById("tasksHeading").textContent = t.tasks;
-  document.getElementById("status").textContent = "";
-
-  renderTasks();
+function makeAutomatic(){
+ const start=toMinutes($("availableStart").value), end=toMinutes($("availableEnd").value), duration=Number($("duration").value), gap=Number($("breakMinutes").value);
+ if(!selectedSubjects.length){$("scheduleStatus").textContent=t("needSubject");return}
+ if(!Number.isFinite(start)||!Number.isFinite(end)||end<=start){$("scheduleStatus").textContent=t("needTime");return}
+ const fit=Math.floor((end-start+gap)/(duration+gap));
+ if(fit<1){$("scheduleStatus").textContent=t("noTime");return}
+ const list=selectedSubjects.slice(0,fit), newSchedule=[];
+ let cursor=start;
+ list.forEach((subject,i)=>{newSchedule.push({id:"a"+Date.now()+"_"+i,subject,start:cursor,end:cursor+duration,duration,repeat:"daily",kind:"auto"});cursor+=duration+gap});
+ schedule=schedule.filter(s=>s.kind!=="auto").concat(newSchedule);
+ $("scheduleStatus").textContent=t("made");save();renderSchedule();
 }
-
-function addTask() {
-  const subject = document.getElementById("subject").value.trim();
-  const dueDate = document.getElementById("dueDate").value;
-  const t = words[selectedLanguage];
-
-  if (!subject) {
-    document.getElementById("status").textContent = t.missing;
-    return;
-  }
-
-  taskList.push({
-    id: Date.now() + Math.random(),
-    subject: subject,
-    dueDate: dueDate,
-    completed: false
-  });
-
-  saveTasks();
-  document.getElementById("subject").value = "";
-  document.getElementById("dueDate").value = "";
-  document.getElementById("status").textContent = t.success;
-  renderTasks();
+function addCustomSession(){
+ const subject=$("sessionSubject").value.trim(), start=toMinutes($("sessionStart").value), duration=Number($("sessionDuration").value);
+ if(!subject){$("scheduleStatus").textContent=t("needTask");return}
+ if(!Number.isFinite(start)||!duration){$("scheduleStatus").textContent=t("needTime");return}
+ const end=start+duration;
+ if(schedule.some(s=>start<s.end&&end>s.start)){$("scheduleStatus").textContent=t("conflict");return}
+ schedule.push({id:"c"+Date.now(),subject,start,end,duration,repeat:$("sessionDay").value,kind:"custom"});
+ $("sessionSubject").value="";$("scheduleStatus").textContent=t("customAdded");save();renderSchedule();
 }
-
-function toggleTask(id, checked) {
-  taskList = taskList.map(task =>
-    task.id === id ? {...task, completed: checked} : task
-  );
-  saveTasks();
-  renderTasks();
+function renderTasks(){
+ const box=$("taskList");
+ if(!tasks.length)box.innerHTML=`<div class="empty">${esc(t("emptyTasks"))}</div>`;
+ else box.innerHTML=tasks.map(task=>`<div class="task-row"><label style="display:flex;gap:10px;align-items:flex-start;margin:0;font-weight:500"><input type="checkbox" data-task-check="${esc(task.id)}" ${task.completed?"checked":""}><span style="${task.completed?"text-decoration:line-through;color:#718096":""}">${esc(task.title)}${task.due?`<small>${esc(t("due"))}: ${esc(task.due)}</small>`:""}</span></label><div class="row-actions"><button class="danger" data-task-remove="${esc(task.id)}">${esc(t("remove"))}</button></div></div>`).join("");
+ box.querySelectorAll("[data-task-check]").forEach(el=>el.addEventListener("change",()=>{const task=tasks.find(x=>x.id===el.dataset.taskCheck);if(task)task.completed=el.checked;save();renderTasks()}));
+ box.querySelectorAll("[data-task-remove]").forEach(el=>el.addEventListener("click",()=>{tasks=tasks.filter(x=>x.id!==el.dataset.taskRemove);save();renderTasks()}));
+ const done=tasks.filter(x=>x.completed).length;
+ $("progressText").textContent=`${done} ${t("done")} / ${tasks.length}`;
+ $("progressBar").style.width=(tasks.length?done/tasks.length*100:0)+"%";
 }
-
-function deleteTask(id) {
-  const t = words[selectedLanguage];
-  if (!confirm(t.confirm)) return;
-
-  taskList = taskList.filter(task => task.id !== id);
-  saveTasks();
-  renderTasks();
+function addTask(){
+ const title=$("taskSubject").value.trim();
+ if(!title){$("taskStatus").textContent=t("needTask");return}
+ tasks.push({id:"t"+Date.now(),title,due:$("dueDate").value,completed:false});
+ $("taskSubject").value="";$("dueDate").value="";$("taskStatus").textContent=t("taskAdded");save();renderTasks();
 }
-
-function renderTasks() {
-  const t = words[selectedLanguage];
-  const list = document.getElementById("tasks");
-  list.replaceChildren();
-
-  const completedCount =
-    taskList.filter(task => task.completed).length;
-
-  document.getElementById("progressText").textContent =
-    `${completedCount} ${t.completed} / ${taskList.length}`;
-
-  document.getElementById("bar").style.width =
-    taskList.length
-      ? (completedCount / taskList.length * 100) + "%"
-      : "0%";
-
-  if (taskList.length === 0) {
-    const empty = document.createElement("p");
-    empty.textContent = t.empty;
-    list.appendChild(empty);
-    return;
-  }
-
-  taskList.forEach(task => {
-    const row = document.createElement("div");
-    row.className = "task";
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = task.completed;
-    checkbox.setAttribute("aria-label", task.subject);
-    checkbox.onchange = () => toggleTask(task.id, checkbox.checked);
-
-    const details = document.createElement("span");
-    details.textContent = task.subject +
-      (task.dueDate ? ` — ${t.exam}: ${task.dueDate}` : "");
-    if (task.completed) details.className = "done";
-
-    const remove = document.createElement("button");
-    remove.textContent = t.remove;
-    remove.onclick = () => deleteTask(task.id);
-
-    row.append(checkbox, details, remove);
-    list.appendChild(row);
-  });
+function applyLanguage(){
+ currentLang=$("language").value;
+ const m={appSubtitle:"subtitle",languageLabel:"language",levelLabel:"level",subjectsTitle:"subjects",subjectsHint:"subjectsHint",scheduleTitle:"schedule",modeLabel:"mode",startLabel:"start",endLabel:"end",durationLabel:"duration",breakLabel:"break",makeSchedule:"make",clearSchedule:"clear",scheduleHint:"scheduleHint",addSessionTitle:"addSessionTitle",sessionSubjectLabel:"sessionSubject",sessionDayLabel:"repeat",sessionStartLabel:"startTime",sessionDurationLabel:"sessionDuration",addSession:"addSession",taskTitle:"tasks",taskLabel:"task",dueLabel:"due",addTask:"addTask",progressTitle:"progress",saveHint:"save",footerText:"footer"};
+ Object.entries(m).forEach(([id,key])=>{const el=$(id);if(el)el.textContent=t(key)});
+ $("scheduleMode").innerHTML=`<option value="auto">${esc(t("auto"))}</option><option value="custom">${esc(t("custom"))}</option>`;
+ $("sessionDay").innerHTML=`<option value="daily">${esc(t("daily"))}</option><option value="weekdays">${esc(t("weekdays"))}</option><option value="weekends">${esc(t("weekends"))}</option>`;
+ $("appTitle").textContent="📚 Student Study Planner";
+ $("level").options[0].textContent=t("chooseClass");
+ updateMode();renderSubjects();renderSchedule();renderTasks();
 }
-
-changeLanguage();
+function updateMode(){$("customSession").hidden=$("scheduleMode").value!=="custom";$("makeSchedule").hidden=$("scheduleMode").value==="custom";$("scheduleHint").textContent=t("scheduleHint")}
+function clearSchedule(){if(!confirm(t("deleteConfirm")))return;schedule=[];save();renderSchedule();$("scheduleStatus").textContent=t("cleared")}
+$("language").addEventListener("change",()=>{applyLanguage();save()});
+$("level").addEventListener("change",()=>{selectedSubjects=[];renderSubjects();save()});
+$("scheduleMode").addEventListener("change",()=>{updateMode();save()});
+$("makeSchedule").addEventListener("click",makeAutomatic);
+$("clearSchedule").addEventListener("click",clearSchedule);
+$("addSession").addEventListener("click",addCustomSession);
+$("addTask").addEventListener("click",addTask);
+$("taskSubject").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
+const saved=safeLoad("ssp_v2",null);
+if(saved){
+ selectedSubjects=Array.isArray(saved.selectedSubjects)?saved.selectedSubjects:[];
+ schedule=Array.isArray(saved.schedule)?saved.schedule:[];
+ tasks=Array.isArray(saved.tasks)?saved.tasks:[];
+ if(saved.level)$("level").value=saved.level;
+ if(saved.lang&&translations[saved.lang])currentLang=saved.lang;
+ $("language").value=currentLang;
+ if(saved.mode)$("scheduleMode").value=saved.mode;
+ if(saved.start)$("availableStart").value=saved.start;
+ if(saved.end)$("availableEnd").value=saved.end;
+ if(saved.duration)$("duration").value=saved.duration;
+ if(saved.breakMinutes!==undefined)$("breakMinutes").value=saved.breakMinutes;
+}
+applyLanguage();
 </script>
 </body>
 </html>
