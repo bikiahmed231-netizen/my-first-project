@@ -1,60 +1,313 @@
  <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My First Website</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Study Planner</title>
 
-        .card {
-            background: white;
-            color: #333;
-            padding: 35px 25px;
-            margin: 20px;
-            border-radius: 20px;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        h1 {
-            color: #6545b5;
-        }
-
-        p {
-            line-height: 1.7;
-        }
-
-        button {
-            background: #6545b5;
-            color: white;
-            border: none;
-            padding: 14px 25px;
-            border-radius: 30px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #49318b;
-        }
-    </style>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #4776e6, #8e54e9);
+  margin: 0;
+  padding: 20px;
+  color: #263238;
+}
+.container {
+  max-width: 650px;
+  margin: 25px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px #2223;
+}
+h1, .subtitle { text-align: center; }
+h1 { color: #5548c8; }
+select, input, button {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 13px;
+  margin: 8px 0;
+  border-radius: 9px;
+  font-size: 16px;
+}
+input, select { border: 1px solid #ccc; }
+button {
+  border: none;
+  background: #5548df;
+  color: white;
+  cursor: pointer;
+}
+button:hover { opacity: 0.88; }
+.progress {
+  background: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 10px;
+}
+#bar {
+  background: #35b779;
+  height: 100%;
+  width: 0%;
+}
+.task {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid #ddd;
+}
+.task input { width: auto; }
+.task span { flex: 1; overflow-wrap: anywhere; }
+.task button {
+  width: auto;
+  background: #e64b59;
+  padding: 8px;
+}
+.done { text-decoration: line-through; color: gray; }
+#status { color: #24814f; }
+</style>
 </head>
+
 <body>
-    <div class="card">
-        <h1>Hello, Biki!</h1>
-        <p>Meri pehli website mein aapka swagat hai.</p>
-        <p>Main HTML aur CSS seekh raha hoon!</p>
-        <button onclick="alert('Wah Biki! Tumhara button kaam kar raha hai!')">Click Me</button>
-    </div>
+<div class="container">
+  <h1 id="heading">📚 Student Study Planner</h1>
+  <p class="subtitle" id="subtitle">
+    Plan your study. Track your progress.
+  </p>
+
+  <label id="languageLabel" for="language">Choose language</label>
+  <select id="language" onchange="changeLanguage()">
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
+    <option value="roman">Roman Hindi</option>
+    <option value="as">Assamese</option>
+  </select>
+
+  <h3 id="addHeading">Add a Study Task</h3>
+  <input id="subject" placeholder="Enter subject or homework">
+  <input id="dueDate" type="date">
+  <button id="addButton" onclick="addTask()">+ Add Task</button>
+  <p id="status" aria-live="polite"></p>
+
+  <h3 id="progressHeading">My Study Progress</h3>
+  <p id="progressText">0 of 0 tasks completed</p>
+  <div class="progress"><div id="bar"></div></div>
+
+  <h3 id="tasksHeading">My Tasks</h3>
+  <div id="tasks"></div>
+</div>
+
+<script>
+const words = {
+  en: {
+    heading: "📚 Student Study Planner",
+    subtitle: "Plan your study. Track your progress.",
+    language: "Choose language",
+    add: "Add a Study Task",
+    placeholder: "Enter subject or homework",
+    button: "+ Add Task",
+    progress: "My Study Progress",
+    tasks: "My Tasks",
+    empty: "Your study journey starts here!",
+    completed: "completed",
+    exam: "Due",
+    remove: "Delete",
+    success: "Task added successfully!",
+    missing: "Please enter a subject or homework.",
+    saved: "Task updated!",
+    confirm: "Are you sure you want to delete this task?"
+  },
+  hi: {
+    heading: "📚 Study Planner",
+    subtitle: "Apni padhai ki yojana banayein.",
+    language: "Bhasha chunein",
+    add: "Padhai ka task jodein",
+    placeholder: "Subject ya homework likhein",
+    button: "+ Task Jodein",
+    progress: "Meri padhai ki progress",
+    tasks: "Mere Tasks",
+    empty: "Yahan se aapki padhai shuru hoti hai!",
+    completed: "poore hue",
+    exam: "Aakhri tareekh",
+    remove: "Delete",
+    success: "Task jud gaya!",
+    missing: "Pehle subject ya homework likhein.",
+    saved: "Task update ho gaya!",
+    confirm: "Kya aap is task ko delete karna chahte hain?"
+  },
+  roman: {
+    heading: "📚 Student Study Planner",
+    subtitle: "Apni padhai plan karo aur progress dekho.",
+    language: "Apni language chuno",
+    add: "Padhai ka task jodo",
+    placeholder: "Subject ya homework likho",
+    button: "+ Task Jodo",
+    progress: "Meri Study Progress",
+    tasks: "Mere Tasks",
+    empty: "Chalo, aaj se padhai shuru karo!",
+    completed: "complete hue",
+    exam: "Last date",
+    remove: "Delete",
+    success: "Task add ho gaya!",
+    missing: "Pehle subject ya homework likho.",
+    saved: "Task update ho gaya!",
+    confirm: "Kya tum ye task delete karna chahte ho?"
+  },
+  as: {
+    heading: "📚 শিক্ষাৰ্থীৰ পঢ়াৰ পৰিকল্পনা",
+    subtitle: "পঢ়াৰ পৰিকল্পনা কৰক, অগ্ৰগতি চাওক।",
+    language: "ভাষা বাছনি কৰক",
+    add: "পঢ়াৰ কাম যোগ কৰক",
+    placeholder: "বিষয় বা ঘৰৰ কাম লিখক",
+    button: "+ কাম যোগ কৰক",
+    progress: "মোৰ পঢ়াৰ অগ্ৰগতি",
+    tasks: "মোৰ কামসমূহ",
+    empty: "ইয়াৰ পৰাই আপোনাৰ পঢ়া আৰম্ভ কৰক!",
+    completed: "টা সম্পূৰ্ণ",
+    exam: "শেষ তাৰিখ",
+    remove: "মচি পেলাওক",
+    success: "কাম যোগ কৰা হ'ল!",
+    missing: "প্ৰথমে বিষয় বা ঘৰৰ কাম লিখক।",
+    saved: "কাম আপডেট কৰা হ'ল!",
+    confirm: "এই কামটো মচি পেলাব বিচাৰে নেকি?"
+  }
+};
+
+let selectedLanguage = "en";
+let taskList = [];
+
+try {
+  taskList = JSON.parse(
+    localStorage.getItem("studyPlannerTasks") || "[]"
+  );
+  if (!Array.isArray(taskList)) taskList = [];
+} catch (error) {
+  taskList = [];
+}
+
+function saveTasks() {
+  try {
+    localStorage.setItem(
+      "studyPlannerTasks",
+      JSON.stringify(taskList)
+    );
+  } catch (error) {
+    document.getElementById("status").textContent =
+      "Could not save tasks on this device.";
+  }
+}
+
+function changeLanguage() {
+  selectedLanguage = document.getElementById("language").value;
+  const t = words[selectedLanguage];
+
+  document.documentElement.lang =
+    selectedLanguage === "as" ? "as" :
+    selectedLanguage === "hi" ? "hi" : "en";
+
+  document.getElementById("heading").textContent = t.heading;
+  document.getElementById("subtitle").textContent = t.subtitle;
+  document.getElementById("languageLabel").textContent = t.language;
+  document.getElementById("addHeading").textContent = t.add;
+  document.getElementById("subject").placeholder = t.placeholder;
+  document.getElementById("addButton").textContent = t.button;
+  document.getElementById("progressHeading").textContent = t.progress;
+  document.getElementById("tasksHeading").textContent = t.tasks;
+  document.getElementById("status").textContent = "";
+
+  renderTasks();
+}
+
+function addTask() {
+  const subject = document.getElementById("subject").value.trim();
+  const dueDate = document.getElementById("dueDate").value;
+  const t = words[selectedLanguage];
+
+  if (!subject) {
+    document.getElementById("status").textContent = t.missing;
+    return;
+  }
+
+  taskList.push({
+    id: Date.now() + Math.random(),
+    subject: subject,
+    dueDate: dueDate,
+    completed: false
+  });
+
+  saveTasks();
+  document.getElementById("subject").value = "";
+  document.getElementById("dueDate").value = "";
+  document.getElementById("status").textContent = t.success;
+  renderTasks();
+}
+
+function toggleTask(id, checked) {
+  taskList = taskList.map(task =>
+    task.id === id ? {...task, completed: checked} : task
+  );
+  saveTasks();
+  renderTasks();
+}
+
+function deleteTask(id) {
+  const t = words[selectedLanguage];
+  if (!confirm(t.confirm)) return;
+
+  taskList = taskList.filter(task => task.id !== id);
+  saveTasks();
+  renderTasks();
+}
+
+function renderTasks() {
+  const t = words[selectedLanguage];
+  const list = document.getElementById("tasks");
+  list.replaceChildren();
+
+  const completedCount =
+    taskList.filter(task => task.completed).length;
+
+  document.getElementById("progressText").textContent =
+    `${completedCount} ${t.completed} / ${taskList.length}`;
+
+  document.getElementById("bar").style.width =
+    taskList.length
+      ? (completedCount / taskList.length * 100) + "%"
+      : "0%";
+
+  if (taskList.length === 0) {
+    const empty = document.createElement("p");
+    empty.textContent = t.empty;
+    list.appendChild(empty);
+    return;
+  }
+
+  taskList.forEach(task => {
+    const row = document.createElement("div");
+    row.className = "task";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = task.completed;
+    checkbox.setAttribute("aria-label", task.subject);
+    checkbox.onchange = () => toggleTask(task.id, checkbox.checked);
+
+    const details = document.createElement("span");
+    details.textContent = task.subject +
+      (task.dueDate ? ` — ${t.exam}: ${task.dueDate}` : "");
+    if (task.completed) details.className = "done";
+
+    const remove = document.createElement("button");
+    remove.textContent = t.remove;
+    remove.onclick = () => deleteTask(task.id);
+
+    row.append(checkbox, details, remove);
+    list.appendChild(row);
+  });
+}
+
+changeLanguage();
+</script>
 </body>
 </html>
